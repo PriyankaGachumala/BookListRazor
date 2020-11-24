@@ -1,0 +1,66 @@
+﻿var DataTable;
+
+$(document).ready(function () {
+    loadDataTable();
+});
+
+function loadDataTable() {
+    dataTable = $('#DT_load').DataTable({
+        "ajax": {
+            "url": "/api/book",
+            "type": "GET",
+            "datatype": "json"
+        },
+        "columns": [
+            { "data": "name", "width": "30%" },
+            { "data": "author", "width": "30%" },
+            { "data": "cost", "width": "10%" },
+            {
+                "data": "id",
+                "render": function (data) {
+                    return ` 
+                            <div class="text-center">
+                            <a href="/BookList/EditBook?id=${data}" class='btn btn-success text-white' style='cursor:pointer; width:100px'> 
+                               Edit
+                            </a> 
+                            &nbsp;
+                            <a class='btn btn-danger text-white' style='cursor:pointer; width:100px'
+                             onclick=Delete('api/book?id='+${data})> 
+                               Delete
+                            </a> 
+                            </div>`
+                }, "width":"30%" 
+            }
+
+        ],
+        "language": {
+            "emptyTable": "no data found"
+        },
+        width:"100%"
+    })
+}
+
+function Delete(url) {
+    swal({
+        title: "Are you sure want to delete item?",
+        text: "Once deleted can't be restored again.",
+        icon: "warning",
+        dangerMode: true
+    }).then((willDelete) => {
+        if (willDelete) {
+            $.ajax({
+                url,
+                success: function (data) {
+                    if (data.success) {
+                        toastr.success(data.message);
+                        dataTable.ajax.reload();
+                    }
+                    else {
+                        toastr.error(data.message);
+                    }
+                }
+            });
+
+        }
+    });
+}
